@@ -38,6 +38,32 @@ Er is geen migratie, dus `payload migrate` maakte geen schema aan → de tabel b
 template hoort al een initiële migratie te bevatten; genereer een nieuwe na elke
 content-veld-wijziging.
 
+## `relation "_<collectie>_v" does not exist` in een *oude* migratie (CI / nieuwe database)
+
+Productie deployt gewoon, maar `npm run migrate` op een **verse** database (CI, een nieuwe
+omgeving, een lokale reset) breekt af in een oudere migratie die data invoegt met de Local
+API (`payload.create(...)` / `payload.update(...)`).
+
+**Oorzaak:** de Local API gebruikt de config van *nu*, niet die van toen de migratie werd
+geschreven. Krijgt een collectie later versies (bijv. `media` via `src/content/mcp.ts` of
+content-historie), dan schrijft de oude migratie naar `_<collectie>_v` terwijl de migratie
+die die tabel aanmaakt pas later in de rij staat. Op productie draaide de oude migratie al
+eerder, dus daar zie je niets; alle PR's van die site worden wel rood en mergen niet meer
+automatisch. Gezien bij vandenoeverlekkerwonen (`20261030_095912_meubels_producten` +
+`_media_v`, november 2026).
+
+**Fix (per site):** zet een migratie die de versietabel aanmaakt vóór de oude
+datamigratie (tijdstempel ervóór, `CREATE TABLE IF NOT EXISTS …` plus indexen en foreign
+key met `IF NOT EXISTS`, of in een `DO $$ … $$`-blok), en maak de latere migratie die
+dezelfde tabel aanmaakt ook idempotent. Productie draait de nieuwe migratie dan als no-op,
+een verse database krijgt de tabel op tijd. Regenereer `src/migrations/index.ts` met
+`node scripts/migrations-index.mjs src/migrations` en controleer met `npm run schema:check`.
+
+**Voorkomen:** schrijf datamigraties (content invoegen, bestanden uploaden) met SQL via
+``db.execute(sql`…`)`` in plaats van de Local API, of zet versies op een collectie pas aan
+nadat je hebt gecontroleerd dat geen oudere migratie die collectie via de Local API vult
+(`grep -rn "collection: '<slug>'" src/migrations`).
+
 ## Auto-deploy triggert niet / Settings toont "GitHub Repo not found"
 
 De Railway GitHub-app heeft geen (doorlopende) toegang tot de repo of de org.
