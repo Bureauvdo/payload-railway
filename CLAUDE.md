@@ -171,6 +171,11 @@ and the go-live checklist: [docs/SEO.md](docs/SEO.md).
   `npm run generate:types` → `npm run migrate:create -- <name>` → `npm run migrate`. A new
   global's table appears once you've run/applied its migration (pending migrations also run
   on boot). Run `npm run migrate` after `git pull` too.
+- **Opening a collection for MCP (`src/content/mcp.ts`) is a schema change.** It gets
+  versions automatically (`withHistory` in `payload.config.ts`) → a new `_<slug>_v` table →
+  needs a migration. And if an OLDER data migration writes to that collection via the Local API
+  (`payload.create`), CI on a fresh DB fails with `relation "_<slug>_v" does not exist`; create
+  the version table idempotently up front. Recipe: [docs/MCP.md](docs/MCP.md).
 - **Empty migration despite a real field change?** Your DB is ahead of the last migration
   (e.g. a leftover from the old push behaviour). Reset/use a clean local DB and regenerate.
 - **Local dev uses a LOCAL Postgres, never a Railway one.** `DATABASE_URI` must point at a

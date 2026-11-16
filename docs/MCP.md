@@ -20,7 +20,23 @@ export const mcpCollections = {
 ```
 
 Verwijderen kan nooit via MCP. Zet nooit persoonsgegevens open (formulierinzendingen,
-gebruikers). Geen migratie nodig: alleen de config verandert.
+gebruikers).
+
+**Een collection openzetten vraagt wél een migratie.** Elke collection in `mcpCollections`
+krijgt automatisch versiegeschiedenis (zie `withHistory` in `payload.config.ts`), dus een
+nieuwe tabel `_<slug>_v`. Na het aanpassen van `mcp.ts`: `npm run generate:types` →
+`npm run migrate:create -- mcp_<slug>` → `npm run migrate`, zoals bij elk ander veld.
+
+**Let op bij oudere datamigraties.** Schrijft een eerdere migratie via de Payload-API in die
+collection (bv. `payload.create({ collection: 'media', … })` om foto's te importeren), dan
+faalt die op een lege database (CI) met `relation "_<slug>_v" does not exist`: de API schrijft
+met de huidige config, dus ook een versie, terwijl de versietabel pas in de nieuwere migratie
+komt. Productie merkt er niets van (die migratie draaide daar al), maar de CI van de site
+blijft rood en Dependabot merget niets meer. Oplossing: maak de versietabel idempotent
+(`CREATE TABLE IF NOT EXISTS`, indexen `IF NOT EXISTS`, foreign key in een `DO $$ … EXCEPTION
+WHEN duplicate_object …`) en roep die aan het begin van de oudere datamigratie aan én in de
+nieuwe migratie. Productie heeft beide migraties al gedraaid, dus het aanpassen verandert daar
+niets.
 
 Bewust alles-of-niets per key: vinkjes per pagina of collection zouden per site andere
 databasekolommen geven, dus een migratie per site. Zie `payload.config.ts`.
