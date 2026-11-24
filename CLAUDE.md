@@ -181,7 +181,7 @@ and the go-live checklist: [docs/SEO.md](docs/SEO.md).
   (importmap, the `payload migrate` "data loss? (y/N)" hang, `relation … does not exist`,
   "GitHub Repo not found").
 - **Never `git reset --hard` a customized client site** onto the template — it wipes the
-  site's work. Template fixes reach sites via `fleet sync` (web-bvdo/fleet) or a single
+  site's work. Template fixes reach sites via `fleet sync` (Bureauvdo/fleet) or a single
   `cherry-pick`. See [docs/MAINTAINING.md](docs/MAINTAINING.md).
 - **Image renders empty** → field not filled in `/admin`, or missing `relationTo: 'media'`.
 - **Outgoing mail is a go-live choice:** SMTP or Microsoft 365, picked by env vars in
@@ -190,7 +190,7 @@ and the go-live checklist: [docs/SEO.md](docs/SEO.md).
 ## Core vs site-specific (important for updates)
 
 This template is the **upstream** for many client sites. Keep the boundary clean so
-`fleet sync` (web-bvdo/fleet cherry-picks new template commits into every site) rarely
+`fleet sync` (Bureauvdo/fleet cherry-picks new template commits into every site) rarely
 conflicts:
 
 | Template CORE (comes from upstream — avoid editing per site) | Site-specific (per client — safe to change) |
