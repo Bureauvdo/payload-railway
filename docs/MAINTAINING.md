@@ -14,7 +14,7 @@ template naar álle bestaande sites krijgt.
 
 - **Deze repo** = de gedeelde basis: Payload-config, de content-helpers, scripts, docs.
 - **Elke klant-site** = een kopie met eigen content-groepen, routes, styling, database + Bucket.
-- **[web-bvdo/fleet](https://github.com/web-bvdo/fleet)** = de laag erboven: `sites.json` als
+- **[Bureauvdo/fleet](https://github.com/Bureauvdo/fleet)** = de laag erboven: `sites.json` als
   register van alle sites, en het `fleet`-script voor status en bulk-acties (`sync`, `run`).
 
 De sleutel tot pijnloze updates is de **core/site-specifiek-scheiding** (zie de tabel in
@@ -75,7 +75,7 @@ gelukte commit en meldt in de PR welke commit handwerk is. Die ene commit haal j
 in een **verse clone** van de site:
 
 ```bash
-git remote add template https://github.com/web-bvdo/payload-railway.git   # eenmalig
+git remote add template https://github.com/Bureauvdo/payload-railway.git   # eenmalig
 git fetch template
 git cherry-pick <commit-hash>     # conflicten oplossen: hou de klant-versie
 npm install                       # als dependencies wijzigden
@@ -138,7 +138,7 @@ site-database werken. Regels:
   in de map. Zonder actuele snapshot in de template genereert een nieuwe site bij zijn eerste
   `migrate:create` alle core-migraties sinds de vorige snapshot opnieuw. `fleet sync` neemt
   `.json`-bestanden uit `src/migrations/` nooit over (een template-snapshot kent de eigen globals
-  van een site niet), dus voor bestaande sites is dit veilig. Zie web-bvdo/fleet, README.
+  van een site niet), dus voor bestaande sites is dit veilig. Zie Bureauvdo/fleet, README.
 
 **Gevolg per site (eenmalig na zo'n update):** de volgende `npm run migrate:create` neemt de
 core-wijziging nog een keer op (de snapshot kende 'm niet). Maak die regels in de gegenereerde
@@ -149,7 +149,7 @@ migratie idempotent (`IF NOT EXISTS`) — daarna is de snapshot weer bij. Confli
 
 De CI staat niet per site maar centraal in de template: `.github/workflows/payload-ci.yml`
 (een herbruikbare workflow). De `ci.yml` van elke site is een dunne aanroep van
-`web-bvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1`. Een CI-wijziging is dus geen
+`Bureauvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1`. Een CI-wijziging is dus geen
 PR per site:
 
 1. PR in de template die `payload-ci.yml` wijzigt. `payload-ci-test.yml` draait de nieuwe versie
@@ -186,7 +186,7 @@ Geen tags of versienummers; de template-commit is de versie.
 
 - **`.template-sha`** in elke site-repo = de laatste template-commit die de site heeft.
   `fleet sync` zet 'm bij; na handmatig cherry-picken zet je 'm zelf door.
-- **[`sites.json`](https://github.com/web-bvdo/fleet/blob/main/sites.json)** in fleet = het
+- **[`sites.json`](https://github.com/Bureauvdo/fleet/blob/main/sites.json)** in fleet = het
   register: repo, URL, Railway-id's en `templateBase` (de template-commit waarvan de site is
   gemaakt, het startpunt zolang `.template-sha` er nog niet is).
 - **`./fleet status`** toont per site de Payload-/Next-versie, CI, open Dependabot-PR's en
@@ -200,7 +200,7 @@ per deployment verschillen:
 Het volledige stappenplan staat in [DEPLOY-RAILWAY.md](DEPLOY-RAILWAY.md) en
 [NEW-SITE.md](NEW-SITE.md). In het kort, per site:
 
-- [ ] **Geregistreerd in `sites.json`** van web-bvdo/fleet. Anders krijgt de site geen
+- [ ] **Geregistreerd in `sites.json`** van Bureauvdo/fleet. Anders krijgt de site geen
       template-updates en staat hij niet in de wekelijkse status.
 - [ ] **Eigen Railway-project per site.** Deel nooit database, Bucket of secret tussen klanten.
 - [ ] **Unieke `PAYLOAD_SECRET` per site.** De template genereert 'm automatisch bij een

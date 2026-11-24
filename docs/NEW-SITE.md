@@ -8,10 +8,10 @@ keer een **eigen kopie-repo** en daarin werk je.
 
 | | |
 |---|---|
-| **Template-repo** (deze) | de blauwdruk. Nooit per klant aanpassen. → `web-bvdo/payload-railway` |
-| **Klant-repo** | een kopie die je één keer maakt. **Hierin ontwikkel je.** → bv. `web-bvdo/klant-x` |
+| **Template-repo** (deze) | de blauwdruk. Nooit per klant aanpassen. → `Bureauvdo/payload-railway` |
+| **Klant-repo** | een kopie die je één keer maakt. **Hierin ontwikkel je.** → bv. `Bureauvdo/klant-x` |
 | **Railway-project** | deployt de **klant-repo** (niet de template) |
-| **fleet** | register van alle sites + template-updates in bulk → `web-bvdo/fleet` |
+| **fleet** | register van alle sites + template-updates in bulk → `Bureauvdo/fleet` |
 
 Waarom? De template is de upstream voor ál je sites. Wijzig je 'm per klant, dan
 lopen bugfixes en updates door elkaar. Eén blauwdruk, veel losse kopieën.
@@ -22,11 +22,11 @@ lopen bugfixes en updates door elkaar. Eén blauwdruk, veel losse kopieën.
 
 Kies één:
 
-- **GitHub UI:** open `github.com/web-bvdo/payload-railway` → knop
+- **GitHub UI:** open `github.com/Bureauvdo/payload-railway` → knop
   **Use this template → Create a new repository** → naam bv. `klant-x`.
 - **CLI:**
   ```bash
-  gh repo create web-bvdo/klant-x --private --template web-bvdo/payload-railway --clone
+  gh repo create Bureauvdo/klant-x --private --template Bureauvdo/payload-railway --clone
   ```
 
 Je hebt nu een zelfstandige repo met alle template-code. De template blijft
@@ -65,7 +65,7 @@ Snelste route (behoudt de automatische koppeling van Postgres + Bucket + vars):
 ## Stap 3 — Ontwikkel lokaal in de klant-repo
 
 ```bash
-git clone https://github.com/web-bvdo/klant-x.git
+git clone https://github.com/Bureauvdo/klant-x.git
 cd klant-x
 npm install
 npm run setup      # maakt .env + PAYLOAD_SECRET
@@ -80,14 +80,14 @@ naar productie): **[DEVELOPING.md](DEVELOPING.md)**.
 
 ## Stap 4 — Registreer de site in fleet
 
-[web-bvdo/fleet](https://github.com/web-bvdo/fleet) is het register van alle sites.
+[Bureauvdo/fleet](https://github.com/Bureauvdo/fleet) is het register van alle sites.
 Zonder dit blok krijgt de site geen template-updates (`fleet sync`) en staat hij
 niet in de wekelijkse status. Voeg aan `sites.json` toe:
 
 ```json
 {
   "name": "klant-x",
-  "repo": "web-bvdo/klant-x",
+  "repo": "Bureauvdo/klant-x",
   "url": "https://<service>.up.railway.app",
   "railway": { "project": "<id>", "service": "<id>", "environment": "<id>" },
   "templateBase": "<sha>",
@@ -100,7 +100,7 @@ niet in de wekelijkse status. Voeg aan `sites.json` toe:
 - `templateBase`: de template-commit waarvan de site gemaakt is. Direct bij het
   aanmaken ophalen, vóór de template weer verandert:
   ```bash
-  gh api repos/web-bvdo/payload-railway/commits/main -q .sha
+  gh api repos/Bureauvdo/payload-railway/commits/main -q .sha
   ```
 
 Commit + push in de fleet-repo. De eerste `./fleet sync` zet daarna `.template-sha`
