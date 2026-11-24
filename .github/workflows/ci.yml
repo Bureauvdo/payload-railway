@@ -1,5 +1,5 @@
 # CI van deze site. De inhoud staat centraal in de template, zodat een CI-wijziging
-# meteen voor alle sites geldt (geen PR per site): web-bvdo/payload-railway,
+# meteen voor alle sites geldt (geen PR per site): Bureauvdo/payload-railway,
 # .github/workflows/payload-ci.yml, branch ci-v1. Pas dit bestand niet per site aan.
 name: CI
 
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: web-bvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1
+    uses: Bureauvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1
     permissions:
       actions: write
       contents: write

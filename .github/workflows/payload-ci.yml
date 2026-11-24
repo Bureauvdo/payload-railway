@@ -1,6 +1,6 @@
 # Herbruikbare CI voor elke Payload + Next.js-site (en de template zelf).
 # Sites roepen hem aan vanuit een dunne .github/workflows/ci.yml:
-#   uses: web-bvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1
+#   uses: Bureauvdo/payload-railway/.github/workflows/payload-ci.yml@ci-v1
 # Een wijziging hier geldt voor alle sites zodra branch ci-v1 hem bevat; geen PR per site.
 # Release: PR naar main (payload-ci-test.yml test de nieuwe versie), daarna
 #   git fetch origin && git checkout ci-v1 && git merge --ff-only origin/main || git merge origin/main
