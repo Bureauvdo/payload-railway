@@ -9,7 +9,11 @@ const dirname = path.dirname(__filename)
 
 // Alleen het echte domein (SITE_URL) mag in Google. Al het andere — *.up.railway.app,
 // staging, een site zonder SITE_URL — krijgt noindex. Zie docs/SEO.md.
-const siteHost = process.env.SITE_URL ? new URL(process.env.SITE_URL).host : undefined
+const siteUrl = process.env.SITE_URL
+if (siteUrl && !siteUrl.startsWith('https://')) {
+  throw new Error(`SITE_URL moet met https:// beginnen, bv. https://www.klant.nl (nu: "${siteUrl}")`)
+}
+const siteHost = siteUrl ? new URL(siteUrl).host : undefined
 
 const nextConfig: NextConfig = {
   images: {

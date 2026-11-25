@@ -24,17 +24,21 @@ const { statementsToExecute, warnings } = await pushSchema(
 const isDefault = (s: string) => /^ALTER TABLE .+ ALTER COLUMN .+ (SET|DROP) DEFAULT\b/i.test(s.trim())
 // Postgres kapt namen af op 63 tekens. Drizzle ziet dan een DROP van de afgekapte naam + een
 // ADD/CREATE van de volledige naam voor dezelfde constraint of index: geen echt verschil (lange
-// slugs geven dit).
+// slugs geven dit). Sinds Payload 3.94 kort drizzle zulke namen zelf in tot <prefix>_<8 hex>_fk|idx;
+// dan is de nieuwe naam zonder dat achtervoegsel een prefix van de oude, afgekapte naam.
 const dropName = (s: string) =>
   s.match(/^(?:ALTER TABLE "[^"]+" DROP CONSTRAINT|DROP INDEX) "([^"]+)"/i)?.[1]
 const addName = (s: string) =>
   s.match(/^(?:ALTER TABLE "[^"]+" ADD CONSTRAINT|CREATE (?:UNIQUE )?INDEX) "([^"]+)"/i)?.[1]
+const sameName = (dropped: string, added: string) =>
+  added.startsWith(dropped) ||
+  (/_[0-9a-f]{8}_(fk|idx)$/.test(added) && dropped.startsWith(added.replace(/_[0-9a-f]{8}_(fk|idx)$/, '')))
 const stmts = (statementsToExecute as string[]).map((s) => s.trim())
 const truncatedPair = new Set<string>()
 for (const a of stmts) {
   const d = dropName(a)
   if (d?.length !== 63) continue
-  const twin = stmts.find((b) => addName(b)?.startsWith(d))
+  const twin = stmts.find((b) => !truncatedPair.has(b) && sameName(d, addName(b) ?? ''))
   if (twin) { truncatedPair.add(a); truncatedPair.add(twin) }
 }
 const missing = stmts.filter((s) => !isDefault(s) && !truncatedPair.has(s))
