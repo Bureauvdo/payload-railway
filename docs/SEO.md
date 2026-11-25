@@ -114,7 +114,9 @@ tracking-scripts. De template laadt alleen de GTM-container, met Google Consent 
 - [ ] Custom domein gekoppeld in Railway.
 - [ ] **`SITE_URL=https://www.klant.nl`** gezet op de production-service (zonder `/` aan
       het eind, precies het domein dat in Google moet komen, met of zonder `www`).
-      Railway deployt opnieuw. `SITE_URL` wordt bij de **build** ingelezen.
+      Railway deployt opnieuw. `SITE_URL` wordt bij de **build** ingelezen. Vergeet je
+      `https://`, dan vult `src/site-url.ts` dat aan; een echt onbruikbare waarde laat de
+      build falen met een melding die `SITE_URL` noemt.
 - [ ] Het andere domein (www tegenover zonder www) stuurt door naar `SITE_URL`, via DNS of
       de registrar. Doet het dat niet, dan krijgt het noindex en is er geen dubbele
       content, maar ook geen doorverwijzing.

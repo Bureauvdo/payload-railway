@@ -3,11 +3,14 @@ import type { Field } from 'payload'
 
 import type { Media } from '@/payload-types'
 
+import { SITE_URL } from '../site-url'
+
 // Het echte domein van de site, bv. https://www.klant.nl. Zet SITE_URL alléén op de
 // production-omgeving, bij livegang. Zonder SITE_URL (of op een ander domein, zoals
 // *.up.railway.app) krijgt elke pagina `X-Robots-Tag: noindex` (next.config.ts) en
 // is de sitemap leeg. Zie docs/SEO.md.
-export const SITE_URL = process.env.SITE_URL?.replace(/\/$/, '')
+// Genormaliseerd in src/site-url.ts: 'www.klant.nl' wordt 'https://www.klant.nl'.
+export { SITE_URL }
 
 // Basis voor absolute URL's (canonical, og:image) → metadataBase in de layout.
 export const siteUrl = new URL(

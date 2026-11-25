@@ -4,12 +4,15 @@ import { readFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { SITE_URL } from './src/site-url'
+
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 // Alleen het echte domein (SITE_URL) mag in Google. Al het andere — *.up.railway.app,
 // staging, een site zonder SITE_URL — krijgt noindex. Zie docs/SEO.md.
-const siteHost = process.env.SITE_URL ? new URL(process.env.SITE_URL).host : undefined
+// SITE_URL zonder https:// wordt aangevuld (src/site-url.ts) in plaats van de build te breken.
+const siteHost = SITE_URL ? new URL(SITE_URL).host : undefined
 
 const nextConfig: NextConfig = {
   images: {

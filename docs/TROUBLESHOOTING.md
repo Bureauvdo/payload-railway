@@ -11,6 +11,17 @@ een plugin die je hebt verwijderd of gewisseld.
 verwijderen of wisselen van een plugin** (storage-adapter, UI-plugin) — anders breekt
 `next build` op een ontbrekende module.
 
+## Build faalt: `Failed to load next.config.ts` … `TypeError: Invalid URL`
+
+`SITE_URL` stond als `www.klant.nl`, zonder `https://` (rynobuitenleven, 24-11-2026).
+`next.config.ts` maakte er een `URL` van en de hele build viel om; de healthcheck hield de
+vorige versie online.
+
+**Fix:** sinds `src/site-url.ts` vult de template `https://` zelf aan. Op een site zonder
+die fix: zet `SITE_URL=https://www.klant.nl` en deploy opnieuw. Geeft de build nu
+*"SITE_URL … is geen geldig domein"*, dan staat er iets anders mis in de waarde (spatie,
+verkeerd protocol).
+
 ## Deploy hangt op *"you've run Payload in dev mode … data loss? (y/N)"*
 
 Dit hoort met `push: false` (sinds die instelling in `payload.config.ts`) **niet meer voor
