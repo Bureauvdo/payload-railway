@@ -22,11 +22,11 @@ die fix: zet `SITE_URL=https://www.klant.nl` en deploy opnieuw. Geeft de build n
 *"SITE_URL … is geen geldig domein"*, dan staat er iets anders mis in de waarde (spatie,
 verkeerd protocol).
 
-## CI rood op `schema:check`: alleen `DROP CONSTRAINT` + `ADD CONSTRAINT … _<hash>_fk`
+## CI rood op `schema:check`: alleen een DROP + ADD/CREATE met naam `…_<hash>_fk` of `…_<hash>_idx`
 
-Na Payload 3.94 kort Payload lange FK-namen zelf in (`<begin>_<8 hex>_fk`); een database
+Na Payload 3.94 kort Payload lange FK- en indexnamen zelf in (`<begin>_<8 hex>_fk|_idx`); een database
 uit oudere migraties heeft de door Postgres op 63 tekens afgekapte naam. Dat is alleen een
-naamverschil (vandenoeverlekkerwonen, 25-11-2026, lange slugs). `scripts/schema-drift-filter.ts`
+naamverschil (vandenoeverlekkerwonen en verandazeeland, 25-11-2026, lange slugs). `scripts/schema-drift-filter.ts`
 negeert zulke paren sinds die datum. Staat er nog iets anders in de lijst, dan is het wél
 echte drift: `npm run migrate:create -- <naam>`.
 

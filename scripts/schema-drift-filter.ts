@@ -9,16 +9,24 @@ const dropName = (s: string) =>
   s.match(/^(?:ALTER TABLE "[^"]+" DROP CONSTRAINT|DROP INDEX) "([^"]+)"/i)?.[1]
 const addName = (s: string) =>
   s.match(/^(?:ALTER TABLE "[^"]+" ADD CONSTRAINT|CREATE (?:UNIQUE )?INDEX) "([^"]+)"/i)?.[1]
-const tableOf = (s: string) => s.match(/^ALTER TABLE "([^"]+)"/i)?.[1]
-// Payload ≥ 3.94 kort een te lange FK-naam zelf in: <begin van de naam>_<8 hex>_fk.
-const hashedPrefix = (name: string) => name.match(/^(.+)_[0-9a-f]{8}_fk$/)?.[1]
+const tableOf = (s: string) =>
+  s.match(/^ALTER TABLE "([^"]+)"/i)?.[1] ?? s.match(/^CREATE (?:UNIQUE )?INDEX "[^"]+" ON "([^"]+)"/i)?.[1]
+// Payload ≥ 3.94 kort een te lange naam zelf in: <begin van de naam>_<8 hex>_fk|_idx.
+const hashedPrefix = (name: string) => name.match(/^(.+)_[0-9a-f]{8}_(?:fk|idx)$/)?.[1]
+// Zelfde tabel? DROP INDEX noemt geen tabel; Payload-indexnamen beginnen met de tabelnaam.
+const sameTable = (drop: string, dropped: string, add: string) => {
+  const t = tableOf(add)
+  if (!t) return false
+  const dt = tableOf(drop)
+  return dt ? dt === t : dropped.startsWith(t)
+}
 
 // Postgres kapt namen af op 63 tekens. Een database die met zo'n afgekapte naam is gemaakt,
 // geeft in de diff een DROP van die naam + een ADD/CREATE van dezelfde constraint of index
 // onder een andere naam. Dat is alleen een naamverschil, geen schemaverschil. Twee vormen:
 // - de volledige naam (begint met de afgekapte naam);
-// - sinds Payload 3.94 een ingekorte naam met hash, op dezelfde tabel (vandenoeverlekkerwonen,
-//   25-11-2026: lange slugs als _elektrische_raamdecoratie_v).
+// - sinds Payload 3.94 een ingekorte naam met hash, op dezelfde tabel (25-11-2026: FK's op
+//   vandenoeverlekkerwonen, een index op verandazeeland; lange slugs).
 function renamePairs(stmts: string[]) {
   const pairs = new Set<string>()
   for (const a of stmts) {
@@ -30,7 +38,7 @@ function renamePairs(stmts: string[]) {
       if (!n) return false
       if (n.startsWith(d)) return true
       const p = hashedPrefix(n)
-      return !!p && d.startsWith(p) && !!tableOf(a) && tableOf(a) === tableOf(b)
+      return !!p && d.startsWith(p) && sameTable(a, d, b)
     })
     if (twin) { pairs.add(a); pairs.add(twin) }
   }

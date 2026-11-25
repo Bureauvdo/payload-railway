@@ -37,6 +37,21 @@ test('hash-naam op een andere tabel is wél drift', () => {
   assert.equal(r.missing.length, 2)
 })
 
+// Uit de CI van verandazeeland na Payload 3.94.1 (25-11-2026).
+const index394 = [
+  'DROP INDEX "_zonwering_knikarmschermen_v_version_intro_bullets_parent_id_id";',
+  'CREATE INDEX "_zonwering_knikarmschermen_v_version_intro_bullets_21256de0_idx" ON "_zonwering_knikarmschermen_v_version_intro_bullets" USING btree ("_parent_id");',
+]
+
+test('Payload 3.94: afgekapte indexnaam → ingekorte naam met hash = geen drift', () => {
+  assert.deepEqual(realDrift(index394), { missing: [], ignored: 2 })
+})
+
+test('hash-index op een tabel die niet bij de naam past is wél drift', () => {
+  const r = realDrift([index394[0], index394[1].replace('ON "_zonwering_knikarmschermen_v_version_intro_bullets"', 'ON "andere_tabel"')])
+  assert.equal(r.missing.length, 2)
+})
+
 test('echte wijzigingen blijven staan', () => {
   const echt = 'ALTER TABLE "users" ADD COLUMN "reset_password_requested_at" timestamp(3) with time zone;'
   assert.deepEqual(realDrift([echt, ...payload394]).missing, [echt])
