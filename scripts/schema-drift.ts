@@ -6,6 +6,7 @@
 import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
+import { realDrift } from './schema-drift-filter'
 
 const payload = await getPayload({ config: await config })
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,26 +20,7 @@ const { statementsToExecute, warnings } = await pushSchema(
   undefined,
 )
 
-// Kolom-defaults tellen niet: Payload vult defaultValue zelf in, en een tekstwijziging in een
-// defaultValue (tekst-in-code) zou anders elke keer een migratie eisen.
-const isDefault = (s: string) => /^ALTER TABLE .+ ALTER COLUMN .+ (SET|DROP) DEFAULT\b/i.test(s.trim())
-// Postgres kapt namen af op 63 tekens. Drizzle ziet dan een DROP van de afgekapte naam + een
-// ADD/CREATE van de volledige naam voor dezelfde constraint of index: geen echt verschil (lange
-// slugs geven dit).
-const dropName = (s: string) =>
-  s.match(/^(?:ALTER TABLE "[^"]+" DROP CONSTRAINT|DROP INDEX) "([^"]+)"/i)?.[1]
-const addName = (s: string) =>
-  s.match(/^(?:ALTER TABLE "[^"]+" ADD CONSTRAINT|CREATE (?:UNIQUE )?INDEX) "([^"]+)"/i)?.[1]
-const stmts = (statementsToExecute as string[]).map((s) => s.trim())
-const truncatedPair = new Set<string>()
-for (const a of stmts) {
-  const d = dropName(a)
-  if (d?.length !== 63) continue
-  const twin = stmts.find((b) => addName(b)?.startsWith(d))
-  if (twin) { truncatedPair.add(a); truncatedPair.add(twin) }
-}
-const missing = stmts.filter((s) => !isDefault(s) && !truncatedPair.has(s))
-const defaults = stmts.length - missing.length
+const { missing, ignored: defaults } = realDrift(statementsToExecute as string[])
 
 if (!missing.length) {
   console.log(`schema-drift: migraties en config komen overeen ✓${defaults ? ` (${defaults} verschil(len) in defaults of afgekapte namen genegeerd)` : ''}`)
